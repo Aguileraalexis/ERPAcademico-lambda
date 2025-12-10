@@ -24,10 +24,11 @@ jobs:
       AWS_ROLE: ${{ vars.AWS_ROLE }}
       LAMBDA_BUCKET: ${{ vars.LAMBDA_BUCKET }}
       ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+      CURRENT_ENV: ${{ github.ref == 'refs/heads/master' && 'dev' || github.ref == 'refs/heads/release' && 'prod' || 'qa'}}
 
     steps:
       - name: Print environment name
-        run: echo "Environment = ${{ job.environment.name }}"
+        run: echo "Environment = ${{  env.CURRENT_ENV }}"
 
       - name: Print github.ref
         run: echo "github.ref = ${{ github.ref }}"
