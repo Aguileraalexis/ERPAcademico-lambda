@@ -26,6 +26,8 @@ jobs:
       ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
 
     steps:
+      - run: echo "Environment = ${{ job.environment.name }}"
+      
       - name: Checkout
         uses: actions/checkout@v4
 
