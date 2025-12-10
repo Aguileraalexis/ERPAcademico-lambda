@@ -15,6 +15,14 @@ permissions:
   contents: read
 
 jobs:
+  debug-oidc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dump OIDC token claims
+        uses: github/actions-oidc-debugger@v1.1.0
+
   build-and-upload:
     runs-on: ubuntu-latest
     environment: ${{ github.ref == 'refs/heads/master' && 'dev' || github.ref == 'refs/heads/release' && 'prod' || 'qa'}}
