@@ -32,7 +32,7 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ env.ACCOUNT_ID }}:role/${{ env.AWS_ROLE }}
+          role-to-assume: arn:aws:iam::${ACCOUNT_ID}:role/${AWS_ROLE}
           aws-region: ${AWS_REGION}
 
       - name: Zip lambdas and upload to S3
