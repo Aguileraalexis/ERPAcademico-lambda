@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Dump OIDC token claims
-        uses: github/actions-oidc-debugger@latest
+        uses: github/actions-oidc-debugger@v1.0.0
 
   build-and-upload:
     runs-on: ubuntu-latest
