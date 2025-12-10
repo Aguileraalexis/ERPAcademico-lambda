@@ -1,0 +1,74 @@
+name: Build & Upload Lambda Zips
+
+on:
+  push:
+    branches: [ "master" ]   # ajusta la rama si hace falta
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        options: [dev, qa, prod]
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/master' && 'dev' || github.ref == 'refs/heads/release' && 'prod' || 'qa'}}
+
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE: ${{ vars.AWS_ROLE }}
+      LAMBDA_BUCKET: ${{ vars.LAMBDA_BUCKET }}
+      ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.ACCOUNT_ID }}:role/${{ env.AWS_ROLE }}
+          aws-region: ${AWS_REGION}
+
+      - name: Zip lambdas and upload to S3
+        run: |
+          set -e
+
+          echo "=== Generando ZIPs de lambdas para Terraform ==="
+
+          for dir in *; do
+            # Saltar si no es directorio
+            if [ ! -d "$dir" ]; then
+              continue
+            fi
+
+            # Omitir carpeta common
+            if [ "$dir" = "common" ]; then
+              echo "Omitiendo carpeta común: $dir"
+              continue
+            fi
+
+            echo "Creando ${dir}.zip ..."
+
+            # Replicar lógica del .bat:
+            # Compress-Archive -Path '%%F\*' -DestinationPath '%%F.zip'
+            # -> contenido de la carpeta, sin incluir el nombre de la carpeta como nivel superior
+
+            TMPDIR="$(mktemp -d)"
+            cp -R "${dir}/." "${TMPDIR}/"
+
+            ( cd "${TMPDIR}" && zip -r "../${dir}.zip" . >/dev/null )
+
+            rm -rf "${TMPDIR}"
+
+            echo "Subiendo ${dir}.zip a s3://${LAMBDA_BUCKET}/lambdas/${dir}.zip ..."
+            aws s3 cp "${dir}.zip" "s3://${LAMBDA_BUCKET}/lambdas/${dir}.zip"
+
+          done
+
+          echo "=== Listo. ZIPs generados y subidos a S3. ==="
