@@ -20,17 +20,22 @@ jobs:
           resp=$(curl -s -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
             "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com")
 
-          echo "Raw response (value aparecerá como *** en logs, es normal): $resp"
+          echo "Raw response (*** is normal): $resp"
 
           id_token=$(echo "$resp" | jq -r '.value')
 
-          python - "$id_token" << 'PY'
+          python3 - "$id_token" << 'PY'
 import sys, base64, json
 
 token = sys.argv[1]
-# token = header.payload.signature
+
+# token format: header.payload.signature
 payload_b64 = token.split(".")[1]
-padding = "=" * (-len(payload_b64) % 4)
-payload = base64.urlsafe_b64decode(payload_b64 + padding).decode()
+
+# Add padding for correct base64 decoding
+payload_b64 += "=" * (-len(payload_b64) % 4)
+
+payload = base64.urlsafe_b64decode(payload_b64).decode()
+
 print(payload)
 PY
