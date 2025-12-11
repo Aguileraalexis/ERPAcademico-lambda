@@ -32,9 +32,10 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with: 
-          role-to-assume: arn:aws:iam::377946658878:role/terraform-github-actions
+          role-to-assume: 'arn:aws:iam::377946658878:role/terraform-github-actions'
 #          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ vars.AWS_ROLE }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-region: 'us-east-1'
+#          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Zip lambdas and upload to S3
         run: |
