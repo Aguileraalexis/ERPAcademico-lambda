@@ -23,10 +23,10 @@ jobs:
 
           echo "Decoded payload:"
           python - << 'PY'
-            import os, base64, json
-            tok = os.environ["ID_TOKEN"]
-            payload_b64 = tok.split(".")[1]
-            payload_b64 += "=" * (-len(payload_b64) % 4)
-            payload = base64.urlsafe_b64decode(payload_b64.encode()).decode()
-            print(payload)
-            PY
+import os, base64, json
+tok = os.environ["ID_TOKEN"]
+payload_b64 = tok.split(".")[1]
+payload_b64 += "=" * (-len(payload_b64) % 4)
+payload = base64.urlsafe_b64decode(payload_b64.encode()).decode()
+print(payload)
+PY
