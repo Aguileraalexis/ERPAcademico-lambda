@@ -41,7 +41,7 @@ jobs:
 
           echo "=== Generando ZIPs de lambdas para Terraform ==="
 
-          for dir in lambdas; do
+          for dir in *; do
             # Saltar si no es directorio
             if [ ! -d "$dir" ]; then
               continue
