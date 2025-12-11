@@ -41,6 +41,8 @@ jobs:
 
           echo "=== Generando ZIPs de lambdas para Terraform ==="
 
+          cd lambdas
+
           for dir in *; do
             # Saltar si no es directorio
             if [ ! -d "$dir" ]; then
@@ -55,20 +57,11 @@ jobs:
 
             echo "Creando ${dir}.zip ..."
 
-            # Replicar lógica del .bat:
-            # Compress-Archive -Path '%%F\*' -DestinationPath '%%F.zip'
-            # -> contenido de la carpeta, sin incluir el nombre de la carpeta como nivel superior
-
-            TMPDIR="$(mktemp -d)"
-            cp -R "${dir}/." "${TMPDIR}/"
-
-            ( cd "${TMPDIR}" && zip -r "../${dir}.zip" . >/dev/null )
-
-            rm -rf "${TMPDIR}"
+            # Contenido de la carpeta sin nivel superior
+            ( cd "$dir" && zip -r "../${dir}.zip" . >/dev/null )
 
             echo "Subiendo ${dir}.zip a s3://${LAMBDA_BUCKET}/lambdas/${dir}.zip ..."
             aws s3 cp "${dir}.zip" "s3://${LAMBDA_BUCKET}/lambdas/${dir}.zip"
-
           done
 
           echo "=== Listo. ZIPs generados y subidos a S3. ==="
